@@ -6,6 +6,7 @@ from db.base_model import BaseModel
 # Create your models here.
 
 # 使用django默认的认证系统
+# python manage.py createsuperuser->auth_user->User模型类
 class User(AbstractUser, BaseModel):
     '''用户模型类'''
 
