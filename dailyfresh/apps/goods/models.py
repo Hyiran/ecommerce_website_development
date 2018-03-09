@@ -28,8 +28,8 @@ class GoodsSKU(BaseModel):
         (1, '上架'),
     )
 
-    category = models.ForeignKey('GoodsType', verbose_name='商品种类')
-    goods = models.ForeignKey('Goods', verbose_name='商品SPU')
+    category = models.ForeignKey('GoodsType', verbose_name='商品种类', on_delete=models.CASCADE)
+    goods = models.ForeignKey('Goods', verbose_name='商品SPU', on_delete=models.CASCADE)
     name = models.CharField(max_length=20, verbose_name='商品名称')
     desc = models.CharField(max_length=256, verbose_name='商品简介')
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='商品价格')
@@ -59,7 +59,7 @@ class Goods(BaseModel):
 
 class GoodsImage(BaseModel):
     '''商品图片模型类'''
-    sku = models.ForeignKey('GoodsSKU', verbose_name='商品')
+    sku = models.ForeignKey('GoodsSKU', verbose_name='商品', on_delete=models.CASCADE)
     image = models.ImageField(upload_to='goods', verbose_name='图片路径')
 
     class Meta:
@@ -70,7 +70,7 @@ class GoodsImage(BaseModel):
 
 class IndexGoodsBanner(BaseModel):
     '''首页轮播商品展示模型类'''
-    sku = models.ForeignKey('GoodsSKU', verbose_name='商品')
+    sku = models.ForeignKey('GoodsSKU', verbose_name='商品', on_delete=models.CASCADE)
     image = models.ImageField(upload_to='banner', verbose_name='图片')
     index = models.SmallIntegerField(default=0, verbose_name='展示顺序')  # 0 1 2 3
 
@@ -87,8 +87,8 @@ class IndexTypeGoodsBanner(BaseModel):
         (1, "图片")
     )
 
-    category = models.ForeignKey('GoodsType', verbose_name='商品类型')
-    sku = models.ForeignKey('GoodsSKU', verbose_name='商品SKU')
+    category = models.ForeignKey('GoodsType', verbose_name='商品类型', on_delete=models.CASCADE)
+    sku = models.ForeignKey('GoodsSKU', verbose_name='商品SKU', on_delete=models.CASCADE)
     display_type = models.SmallIntegerField(default=1, choices=DISPLAY_TYPE_CHOICES, verbose_name='展示类型')
     index = models.SmallIntegerField(default=0, verbose_name='展示顺序')
 

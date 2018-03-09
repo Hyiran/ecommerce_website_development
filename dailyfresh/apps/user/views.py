@@ -9,7 +9,8 @@ from django.http import HttpResponse
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from itsdangerous import SignatureExpired
 from apps.user.models import User
-
+# from celery_tasks import tasks
+from apps.user import tasks
 
 # Create your views here.
 
@@ -71,22 +72,24 @@ class RegisterView(View):
         token = token.decode()
 
         # 组织邮件信息
-        subject = '天天生鲜欢迎信息'
-        message = ''
-        sender = settings.EMAIL_FROM
-        receiver = [email]
-        html_message = """
-                    <h1>%s, 欢迎您成为天天生鲜注册会员</h1>
-                    请点击一下链接激活您的账号(7小时之内有效)<br/>
-                    <a href="http://127.0.0.1:8000/user/active/%s">http://127.0.0.1:8000/user/active/%s</a>
-                """ % (username, token, token)
+        # subject = '天天生鲜欢迎信息'
+        # message = ''
+        # sender = settings.EMAIL_FROM
+        # receiver = [email]
+        # html_message = """
+        #             <h1>%s, 欢迎您成为天天生鲜注册会员</h1>
+        #             请点击一下链接激活您的账号(7小时之内有效)<br/>
+        #             <a href="http://127.0.0.1:8000/user/active/%s">http://127.0.0.1:8000/user/active/%s</a>
+        #         """ % (username, token, token)
+        #
+        # # 发送激活邮件
+        # # send_mail(subject='邮件标题',
+        # #           message='邮件正文',
+        # #           from_email='发件人',
+        # #           recipient_list='收件人列表')
+        # send_mail(subject, message, sender, receiver, html_message=html_message)
+        tasks.send_register_active_email.delay(email, username, token)
 
-        # 发送激活邮件
-        # send_mail(subject='邮件标题',
-        #           message='邮件正文',
-        #           from_email='发件人',
-        #           recipient_list='收件人列表')
-        send_mail(subject, message, sender, receiver, html_message=html_message)
 
         # 4.返回应答: 跳转到首页
         return redirect(reverse('goods:index'))
@@ -125,3 +128,6 @@ class LoginView(View):
     def get(self, request):
         """显示"""
         return render(request, 'login.html')
+
+
+
