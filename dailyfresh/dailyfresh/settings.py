@@ -43,13 +43,14 @@ INSTALLED_APPS = (
     # 下面是一些自定义添加的第三方应用和项目应用
     'tinymce',  # django-tinymce 富文本编辑器
     # 'haystack', # 全文检索的框架
-    'djcelery', # 将耗时的程序放到celery中执行
+    # 'djcelery', # 将耗时的程序放到celery中执行
+    # 'celery_tasks',
+
     # 项目应用
     'apps.cart', # 购物车  cart
     'apps.goods',  # 商品
     'apps.order',  # 订单
     'apps.user', # 用户
-
 )
 
 MIDDLEWARE_CLASSES = (
@@ -161,6 +162,6 @@ EMAIL_FROM = '天天生鲜<a7478317@163.com>'
 
 
 # 配置 djcelery
-import djcelery
-djcelery.setup_loader()
-BROKER_URL = 'redis://127.0.0.1:6379/2'
+# import djcelery
+# djcelery.setup_loader()
+# BROKER_URL = 'redis://127.0.0.1:6379/2'

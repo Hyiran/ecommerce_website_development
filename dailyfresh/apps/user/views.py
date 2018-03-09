@@ -9,8 +9,8 @@ from django.http import HttpResponse
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from itsdangerous import SignatureExpired
 from apps.user.models import User
-# from celery_tasks import tasks
-from apps.user import tasks
+from celery_tasks import tasks
+# from apps.user import tasks
 
 # Create your views here.
 
