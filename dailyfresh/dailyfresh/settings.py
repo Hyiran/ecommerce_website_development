@@ -39,7 +39,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     # 下面是一些自定义添加的第三方应用和项目应用
     'tinymce',  # django-tinymce 富文本编辑器
-    'haystack', # 全文检索的框架
+    # 'haystack', # 全文检索的框架
     'djcelery', # 将耗时的程序放到celery中执行
     # 项目应用
     'apps.cart',
@@ -100,12 +100,15 @@ DATABASES = {
 }
 
 
+# 指定django认证系统使用的用户模型类
+AUTH_USER_MODEL = 'user.User'
+
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'zh-Hans'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
