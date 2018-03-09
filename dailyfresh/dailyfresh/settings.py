@@ -12,8 +12,11 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import sys
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# 添加apps目录，方便应用书写
+# sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 
 
 # Quick-start development settings - unsuitable for production
@@ -39,10 +42,10 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     # 下面是一些自定义添加的第三方应用和项目应用
     'tinymce',  # django-tinymce 富文本编辑器
-    'haystack', # 全文检索的框架
+    # 'haystack', # 全文检索的框架
     'djcelery', # 将耗时的程序放到celery中执行
     # 项目应用
-    'apps.cart',
+    'apps.cart', # 购物车  cart
     'apps.goods',  # 商品
     'apps.order',  # 订单
     'apps.user', # 用户
@@ -100,12 +103,15 @@ DATABASES = {
 }
 
 
+# 指定django认证系统使用的用户模型类
+AUTH_USER_MODEL = 'user.User'
+
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'zh-Hans'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
@@ -118,10 +124,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 # 配置静态文件目录
 STATIC_URL = '/static/'
-STATICFILES = [
-    os.path.join(BASE_DIR, 'static'),
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static')
 ]
-
 
 # 富文本编辑器配置
 TINYMCE_DEFAULT_CONFIG = {
@@ -131,14 +136,14 @@ TINYMCE_DEFAULT_CONFIG = {
 }
 
 # 搜索haystack配置
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        #使用whoosh引擎
-        'ENGINE': 'haystack.backends.whoosh_cn_backend.WhooshEngine',
-        #索引文件路径
-        'PATH': os.path.join(BASE_DIR, 'whoosh_index'),
-    }
-}
+# HAYSTACK_CONNECTIONS = {
+#     'default': {
+#         #使用whoosh引擎
+#         'ENGINE': 'haystack.backends.whoosh_cn_backend.WhooshEngine',
+#         #索引文件路径
+#         'PATH': os.path.join(BASE_DIR, 'whoosh_index'),
+#     }
+# }
 
 #当添加、修改、删除数据时，自动生成索引
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
