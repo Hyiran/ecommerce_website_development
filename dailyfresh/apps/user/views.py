@@ -10,8 +10,10 @@ from django.contrib.auth import authenticate, login, logout
 
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from itsdangerous import SignatureExpired
-from apps.user.models import User
+from apps.user.models import User, Address
 from celery_tasks import tasks
+
+
 # from apps.user import tasks
 
 # Create your views here.
@@ -92,7 +94,6 @@ class RegisterView(View):
         # send_mail(subject, message, sender, receiver, html_message=html_message)
         tasks.send_register_active_email.delay(email, username, token)
 
-
         # 4.返回应答: 跳转到首页
         return redirect(reverse('goods:index'))
 
@@ -126,6 +127,7 @@ class ActiveView(View):
 # /user/login
 class LoginView(View):
     """登录"""
+
     def get(self, request):
         """显示"""
         # 判断用户是否记住用户名
@@ -145,7 +147,7 @@ class LoginView(View):
         # 1.接收参数
         username = request.POST.get('username')
         password = request.POST.get('pwd')
-        remember = request.POST.get('remember') # None
+        remember = request.POST.get('remember')  # None
         # 调试查看
         # print('username:', username)
         # print('password:', password)
@@ -164,12 +166,11 @@ class LoginView(View):
                 # 记住用户的登录状态
                 login(request, user)
 
-
                 # 跳转到首页
                 response = redirect(reverse('goods:index'))  # HttpResponseRedirect
                 # 将用户名赋值给index
                 # 方式1：直接在session里面记录该值，并传递给重定向
-                request.session['is_login'] = username
+                # request.session['is_login'] = username
                 # 方式2： 设置cookie，不安全
                 # response.set_cookie('is_login', username)
                 # 方式3：由于采用django自带的authenticate，因此，可以在模板中使用user.is_authenticated
@@ -178,11 +179,11 @@ class LoginView(View):
                 # 判断是否需要记住用户名
                 if remember == 'on':
                     # 设置cookie username
-                    response.set_cookie('username', username, max_age=7*24*3600)
+                    response.set_cookie('username', username, max_age=7 * 24 * 3600)
                 else:
                     # 删除cookie username
                     response.delete_cookie('username')
-
+                response.set_cookie('name', username)
                 # 跳转到首页
                 return response
             else:
@@ -206,13 +207,83 @@ class LoginView(View):
 # /user/logout
 class LogoutView(View):
     """退出"""
+
     def get(self, request):
         """退出"""
-        # 清除用户登录状态
+        # 清除用户登录状态,内置的logout函数会自动清除当前session
         logout(request)
 
         # 跳转到登录
         return redirect(reverse('user:login'))
+
+
+# /user/user_center_info
+class User_center_infoView(View):
+    """显示用户中心"""
+
+    def get(self, request):
+        username = request.COOKIES['name']
+        response = render(request, 'user_center_info.html')
+        response.set_cookie('username', username)
+        return response
+
+
+# /user/user_center_site
+class User_center_siteView(View):
+    """显示收货地址"""
+
+    def get(self, request):
+        username = request.COOKIES['username']
+        user = User.objects.get(username=username)
+        try:
+            default_address = Address.objects.get(user=user.id, is_default=True)
+        except Address.DoesNotExist as e:
+            content = {'have_default': 1}
+            return render(request, 'user_center_site.html', content)
+        else:
+            content = {'have_default': 0, 'default_address': default_address}
+            return render(request, 'user_center_site.html', content)
+
+    def post(self, request):
+        """修改或新增地址"""
+        receiver = request.POST.get('receiver')  # 收件人
+        direction = request.POST.get('direction')  # 收件地址
+        mail_code = request.POST.get('mail_code')  # 邮编
+        phone_number = request.POST.get('phone_number')  # 电话号码
+        is_default = request.POST.get('is_default')  # 是否默认
+        username = request.COOKIES['username']
+        user = User.objects.get(username=username)
+
+        if not all([receiver, direction, mail_code, phone_number, is_default]):
+            # 后端也先校验一下数据完整性
+            return render(request, 'user_center_site.html', {'errmsg': '收货信息不完整,请重新填写'})
+
+        # 正确则写入数据库
+
+        try:
+            address = Address.objects.get(receiver=receiver, user=user, addr=direction, phone=phone_number)
+        except Address.DoesNotExist as e:
+            # 数据没有重复, 添加进地址表
+            if is_default == 0:
+                is_default = False
+                address = Address.objects.create(user=user, receiver=receiver, addr=direction, zip_code=mail_code, phone=phone_number, is_default=is_default)
+            else:
+                # 如果该地址设置为默认值，则需要将其他地址均设置为非默认
+                is_default = True
+                address = Address.objects.create(user=user, receiver=receiver, addr=direction, zip_code=mail_code,
+                                                 phone=phone_number, is_default=is_default)
+                other_address = Address.objects.exclude(user=user)
+                for other in other_address:
+                    other.is_default = False
+                    other.save()
+            default_address = Address.objects.get(user=user, is_default=True)
+            content = {'default_address': default_address}
+            return render(request, 'user_center_site.html', content)
+        else:
+            return render(request, 'user_center_site.html', {'errmsg': '收货信息重复'})
+
+
+
 
 
 
