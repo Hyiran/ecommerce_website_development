@@ -165,3 +165,21 @@ EMAIL_FROM = '天天生鲜<a7478317@163.com>'
 # import djcelery
 # djcelery.setup_loader()
 # BROKER_URL = 'redis://127.0.0.1:6379/2'
+
+
+# 设置Django框架的缓存
+# CACHES = {
+#     "default": {
+#         "BACKEND": "django_redis.cache.RedisCache",
+#         # 设置django缓存的数据保存在redis数据库中
+#         "LOCATION": "redis://172.16.179.142:6379/5",
+#         "OPTIONS": {
+#             "CLIENT_CLASS": "django_redis.client.DefaultClient",
+#         }
+#     }
+# }
+#
+# # Django的session存储设置
+# SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+# # 设置session信息存储在CACHES配置项default对应的redis中
+# SESSION_CACHE_ALIAS = "default"

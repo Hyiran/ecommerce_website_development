@@ -17,9 +17,9 @@ html,body{height:100%}
 	line-height:29px;
 }
 
-.login_info{
-	display:none;
-}
+/*.login_info{*/
+	/*display:none;*/
+/*}*/
 
 .login_info em{color:#ff8800}
 
