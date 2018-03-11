@@ -1,12 +1,8 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+{% extends 'base_user_center.html' %}
 {% load static from staticfiles %}
-<head>
-	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
-	<title>天天生鲜-用户中心</title>
-	<link rel="stylesheet" type="text/css" href="{% static 'css/reset.css' %}">
-	<link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}">
-    <style type="text/css">
+{% block topfiles %}
+
+            <style type="text/css">
         .site_con .form_group #is_default{
             width:25px;
 	        height:23px;
@@ -22,72 +18,51 @@
             font-size: 14px;
         }
     </style>
-</head>
-<body>
-	<div class="header_con">
-		<div class="header">
-			<div class="welcome fl">欢迎来到天天生鲜!</div>
-			<div class="fr">
-				<div class="login_info fl">
-					欢迎您：<em>{{ user.username }}</em>
-				</div>
-				<div class="login_btn fl">
-					<a href="{% url 'user:login' %}">登录</a>
-					<span>|</span>
-					<a href="{% url 'user:register' %}">注册</a>
-				</div>
-				<div class="user_link fl">
-					<span>|</span>
-					<a href="{% url 'user:user_center_info' %}">用户中心</a>
-					<span>|</span>
-					<a href="cart.html">我的购物车</a>
-					<span>|</span>
-					<a href="user_center_order.html">我的订单</a>
-				</div>
-			</div>
-		</div>		
-	</div>
+{% endblock topfiles %}
+{% block page_title %}收货地址{% endblock page_title %}
 
-	<div class="search_bar clearfix">
-		<a href="index.html" class="logo fl"><img src="images/logo.png"></a>
-		<div class="sub_page_name fl">|&nbsp;&nbsp;&nbsp;&nbsp;用户中心</div>
-		<div class="search_con fr">
-			<input type="text" class="input_text fl" name="" placeholder="搜索商品">
-			<input type="button" class="input_btn fr" name="" value="搜索">
-		</div>		
-	</div>
+{% block right_content %}
 
-	<div class="main_con clearfix">
-		<div class="left_menu_con clearfix">
-			<h3>用户中心</h3>
-			<ul>
-				<li><a href="{% url 'user:user_center_info' %}">· 个人信息</a></li>
-				<li><a href="user_center_order.html">· 全部订单</a></li>
-				<li><a href="{% url 'user:user_center_site' %}" class="active">· 收货地址</a></li>
-			</ul>
-		</div>
 		<div class="right_content clearfix">
 				<h3 class="common_title2">收货地址</h3>
-                {% if have_default %}
-                <div class="site_con">
+                {% if address %}
+                    <div class="site_con">
 					<dl>
-						<dt>默认地址：</dt>
-						<dd>您目前没有默认地址</dd>
+						<dt>当前默认地址信息：</dt>
+						<dd>地 址: {{ address.addr }}</dd>
+                        <dd>收件人: {{ address.receiver }}</dd>
+                        <dd>收件电话: {{ address.phone }}</dd>
 					</dl>
 				</div>
                 {% else %}
-				<div class="site_con">
+				    <div class="site_con">
 					<dl>
-						<dt>当前默认地址信息：</dt>
-						<dd>地 址: {{ default_address.addr }}</dd>
-                        <dd>收件人: {{ default_address.receiver }}</dd>
-                        <dd>收件电话: {{ default_address.phone }}</dd>
-					</dl>					
+						<dt>默认地址：</dt>
+						<dd>您目前暂无默认地址</dd>
+					</dl>
 				</div>
                 {% endif %}
+                <div class="site_con">
+					<dl>
+						<dt>所有已存地址：</dt>
+                        {% if have_address %}
+                            {% for every_address in have_address %}
+                            <hr />
+                            <dd>地 址: {{ every_address.addr }}</dd>
+                            <dd>收件人: {{ every_address.receiver }}</dd>
+                            <dd>收件电话: {{ every_address.phone }}</dd>
+                            {% endfor %}
+                        {% else %}
+                            <dd>您目前暂无收货地址</dd>
+                        {% endif %}
+
+
+
+					</dl>
+				</div>
 				<h3 class="common_title2">添加地址</h3>
 				<div class="site_con">
-					<form action="{% url 'user:user_center_site' %}" method="post">
+					<form action="{% url 'user:address' %}" method="post">
                         {% csrf_token %}
 						<div class="form_group">
 							<label>收件人：</label>
@@ -117,22 +92,5 @@
 				</div>
 		</div>
 	</div>
+{% endblock right_content %}
 
-
-
-	<div class="footer">
-		<div class="foot_link">
-			<a href="#">关于我们</a>
-			<span>|</span>
-			<a href="#">联系我们</a>
-			<span>|</span>
-			<a href="#">招聘人才</a>
-			<span>|</span>
-			<a href="#">友情链接</a>		
-		</div>
-		<p>CopyRight © 2016 北京天天生鲜信息技术有限公司 All Rights Reserved</p>
-		<p>电话：010-****888    京ICP备*******8号</p>
-	</div>
-	
-</body>
-</html>

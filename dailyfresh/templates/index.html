@@ -1,68 +1,14 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+{% extends 'base.html' %}
 {% load static from staticfiles %}
-<head>
-	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
-	<title>天天生鲜-首页</title>
-	<link rel="stylesheet" type="text/css" href="{% static 'css/reset.css' %}">
-	<link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}">
+{% block title %}天天生鲜 - 首页{% endblock title %}
+{% block topfiles %}
 	<script type="text/javascript" src="{% static 'js/jquery-1.12.4.min.js' %}"></script>
 	<script type="text/javascript" src="{% static 'js/jquery-ui.min.js' %}"></script>
 	<script type="text/javascript" src="{% static 'js/slide.js' %}"></script>
-</head>
-<body>
-	<div class="header_con">
-		<div class="header">
-			<div class="welcome fl">欢迎来到天天生鲜!</div>
-			<div class="fr">
-                {% if user.is_authenticated %}
-                <div class="login_info fl">
-					欢迎您：<em>{{ user.username }}</em>
-                    <span>|</span>
-					<a href="{% url 'user:logout' %}">退出</a>
-				</div>
-                {% else %}
-				<div class="login_btn fl">
-					<a href="{% url 'user:login' %}">登录</a>
-					<span>|</span>
-					<a href="{% url 'user:register' %}">注册</a>
-				</div>
-                {% endif %}
-				<div class="user_link fl">
-					<span>|</span>
-					<a href="{% url 'user:user_center_info' %}">用户中心</a>
-					<span>|</span>
-					<a href="cart.html">我的购物车</a>
-					<span>|</span>
-					<a href="user_center_order.html">我的订单</a>
-				</div>
+{% endblock topfiles %}
 
-			</div>
-		</div>		
-	</div>
-{#    <script type="text/javascript">#}
-{#            {% if username %}#}
-{#                $('.user_link').show();#}
-{#                $('.login_info').show();#}
-{#                $('.login_btn').hide();#}
-{##}
-{#            {% else %}#}
-{#                $('.login_btn').show();#}
-{#                $('.user_link').hide();#}
-{#            {% endif %}#}
-{#    </script>#}
-	<div class="search_bar clearfix">
-		<a href="index.html" class="logo fl"><img src="{% static 'images/logo.png' %}"></a>
-		<div class="search_con fl">
-			<input type="text" class="input_text fl" name="" placeholder="搜索商品">
-			<input type="button" class="input_btn fr" name="" value="搜索">
-		</div>
-		<div class="guest_cart fr">
-			<a href="#" class="cart_name fl">我的购物车</a>
-			<div class="goods_count fl" id="show_count">1</div>
-		</div>
-	</div>
-
+{# 网页主体内容块 #}
+{% block body %}
 	<div class="navbar_con">
 		<div class="navbar">
 			<h1 class="fl">全部商品分类</h1>
@@ -147,7 +93,7 @@
 			<div class="subtitle fl">
 				<span>|</span>
 				<a href="#">河虾</a>
-				<a href="#">扇贝</a>				
+				<a href="#">扇贝</a>
 			</div>
 			<a href="#" class="goods_more fr">查看更多 ></a>
 		</div>
@@ -335,6 +281,9 @@
 		</div>
 	</div>
 
+
+{% endblock body %}
+
 	<div class="footer">
 		<div class="foot_link">
 			<a href="#">关于我们</a>
@@ -348,7 +297,9 @@
 		<p>CopyRight © 2016 北京天天生鲜信息技术有限公司 All Rights Reserved</p>
 		<p>电话：010-****888    京ICP备*******8号</p>
 	</div>
-	<script type="text/javascript" src="{% static 'js/slideshow.js' %}"></script>
+    {# 网页底部引入文件块 #}
+	{% block bottomfiles %}
+    <script type="text/javascript" src="{% static 'js/slideshow.js' %}"></script>
 	<script type="text/javascript">
 		BCSlideshow('focuspic');
 		var oFruit = document.getElementById('fruit_more');
@@ -365,5 +316,7 @@
 			window.location.href = 'list.html';
 		}
 	</script>
+	{% endblock bottomfiles %}
+
 </body>
 </html>

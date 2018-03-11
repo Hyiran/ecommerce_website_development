@@ -1,5 +1,5 @@
 # ecommerce_website_development
-本项目基于Django1.8.2和django-bootstrap3等来开发一个电商平台，可实现注册、登录、浏览、购买、支付等全部常用功能。
+本项目基于Django1.8.2等来开发一个电商平台，可实现注册、登录、浏览、购买、支付等全部常用功能。
 
 
 
@@ -171,7 +171,7 @@
       html_message='包含html的邮件内容')
   ```
 
-- 4.itsdangerous包加密解密的简单使用。
+- itsdangerous包加密解密的简单使用，对邮件确认时发送的url进行加密添加。
 
   ```
   安装:
@@ -194,7 +194,7 @@
       pass
   ```
 
-- 5.celery异步任务队列的使用，将发送邮件等耗时操作由其操作，以便提升前端用户体验。
+- celery异步任务队列的使用，将发送邮件等耗时操作由其操作，以便提升前端用户体验。
 
   ```
   celery(异步任务队列):
@@ -224,7 +224,7 @@
   task_func.delay(2, 3)
   ```
 
-- 6.用户注册的处理流程。
+- 用户注册的处理流程。
 
   ```
   # /user/register
@@ -244,7 +244,7 @@
           # 跳转到首页
   ```
 
-- 7.用户激活的处理流程。
+- 用户激活的处理流程。
 
   ```
   # /user/active/激活token信息
@@ -262,7 +262,7 @@
           pass
   ```
 
-- 8.用户登录和退出的处理流程。
+- 用户登录和退出的处理流程。
 
   ```
   # /user/login
@@ -302,7 +302,7 @@
       # 跳转到登录页面
   ```
 
-- 9.request对象的user属性。
+- request对象的user属性。
 
   ```
   每个请求到达Django框架后，request对象都会有一个user属性。
@@ -318,7 +318,7 @@
 
   ```
 
-- 10.使用django-redis配置缓存和存储session信息。
+- 使用django-redis配置缓存和存储session信息。
 
   ```
   1) 安装
@@ -342,3 +342,147 @@
   # session存储到CACHES配置项中default对应的redis数据库中
   SESSION_CACHE_ALIAS = "default"
   ```
+
+## 20180311
+
+- <font color=red>父模板页抽象的一般原则</font>。
+
+  ```
+  1）针对静态index.html，从上向下进行浏览，所有页面都有的内容保留，某些位置每个页面都不相同则预留块。
+  2）对于大多数页面都相同的内容，也可以放在父模板中，但是要包在块中。
+  ```
+
+- django中<font color=red>login_required装饰器</font>函数的作用。
+
+  ```
+  from django.contrib.auth.decorators import login_required
+  功能:
+    1) 验证用户是否登录。
+    2) 如果用户未登录则跳转到settings.LOGIN_URL指定的地址，同时把访问的url通过next参数跟在
+    LOGIN_URL地址后面。
+    3) 如果用户已登录，则调用对应的视图。
+
+  使用:
+    1）方式1: 在进行url配置时，手动调用login_required装饰器。
+        url(r'^user_center_info$', login_required(User_center_infoView.as_view(), login_url='/user/login'), name='user_center_info'),
+    2）方式2:重写View类的as_view方法
+      2.1 定义一个类LoginRequiredView, 继承View。
+      2.2 重写as_view, 在重写的as_view方法中调用login_required实现登录验证。
+      class LoginRequiredView(View):
+        @classmethod
+        def as_view(cls, **initkwargs):
+            # 调用View类中as_view方法
+            view = super(LoginRequiredView, cls).as_view(**initkwargs)
+
+            # 进行登录验证
+            return login_required(view)
+      2.3 需要登录验证的类视图直接继承LoginRequiredView。
+        class UserInfoView(LoginRequiredView):
+            # ...
+            pass
+
+    3）方式3:
+      3.1 定义一个类LoginRequiredMixin, 继承object。
+      3.2 定义as_view，先使用super调用as_view, 在调用login_required实现登录验证。
+      class LoginRequiredMixin(object):
+        @classmethod
+        def as_view(cls, **initkwargs):
+            # 调用View类中as_view方法
+            view = super(LoginRequiredMixin, cls).as_view(**initkwargs)
+
+            # 进行登录验证
+            return login_required(view)
+      3.3 需要登录验证的类视图先继承与LoginRequiredMixin, 再继承View。
+      class UserInfoView(LoginRequiredMixin, View):
+          # ...
+          pass
+
+  ```
+
+- 4.自定义模型管理器类的方法及其使用场景：更好的对模型类对应的数据表进行增删改查。
+
+  ```
+  1）定义一个类，继承models.Manager。
+  class AddressManager(models.Manager):
+      """地址模型管理器类"""
+      # 封装方法: 改变原有查询的结果集
+      # 封装方法: 用于操作管理器对象所在模型类对应的数据表(增，删，改，查)
+      pass
+
+  2）在对应模型类中创建一个自定义模型管理器类的对象。
+  class Address(models.Model):
+      """地址模型类"""
+      # ...
+      # 自定义模型管理器对象
+      objects = AddressManager()
+
+  ```
+
+- 用户历史浏览记录存储的分析过程——一般用户最近浏览的均为用户的感兴趣群体数据，有助于推荐更精准的广告或者产品。
+
+  ```
+  问题分析:
+  1）什么时候需要添加用户历史浏览的记录？
+  答:当用户点击某个商品，访问商品的详情页面(详情页视图)的时候，才要添加历史浏览记录。
+
+  2）什么时候需要获取用户历史浏览的记录？
+  答: 当用户访问用户中心-信息页(信息页视图)的时候，需要获取用户的历史浏览记录。
+
+  3）保存用户的历史浏览记录需要保存哪些数据？
+  答: 保存商品id，添加历史浏览记录时需要保持用户的浏览顺序。
+
+  4）数据需要保存在哪里？
+  答: 数据持久化保存: 文件 mysql数据库 redis数据库。对于频繁操作的数据，为了提高处理的效率，
+  建议放在redis数据库。
+
+  5）采用redis中哪种数据格式？key-value key是字符串类型，value分为5种类型。
+  存储方案1：所有用户的历史浏览记录用一条数据来保存。
+    key: history
+    值选择hash, 属性(user_用户id), 用hash的属性来区分每一个用户。
+    属性(user_用户id)的值来保存用户浏览的商品的id, 属性值保存成以逗号分隔的字符 '2,3,4'
+
+  存储方案2：每个用户的历史浏览记录用一条数据来保存。
+    key: history_用户id 用key来区分每一个用户
+    value选择list: [3, 1, 2]，最新浏览的商品的id添加到列表最左侧
+
+  存储方案1操作历史浏览记录时需要进行额外的字符串操作，存储方案2的效率更高。
+  ```
+
+<font color=blue>一个常见的问题: mySQL里有2000w数据，redis中只存20w的数据，如何保证redis中的数据都是热点数据</font>：
+
+相关知识点：
+
+- redis 内存数据集大小上升到一定大小的时候，就会施行数据淘汰策略。
+- redis<font color=red>常见的六种淘汰策略</font>：
+  - volatile-lru：从已设置过期时间的数据集（server.db[i].expires）中挑选最近最少使用的数据淘汰；
+  - volatile-ttl：从已设置过期时间的数据集（server.db[i].expires）中挑选将要过期的数据淘汰；
+  - volatile-random：从已设置过期时间的数据集（server.db[i].expires）中任意选择数据淘汰；
+  - allkeys-lru：从数据集（server.db[i].dict）中挑选最近最少使用的数据淘汰；
+  - allkeys-random：从数据集（server.db[i].dict）中任意选择数据淘汰；
+  - no-enviction（驱逐）：禁止驱逐数据。
+
+<font color=blue>限制用户短时间内登录次数的问题：</font>
+
+```python
+"""用列表实现:列表中每个元素代表登陆时间,只要最后的第5次登陆时间和现在时间差不超过1小时就禁止登陆"""
+"""
+请用Redis和任意语言实现一段恶意登录保护的代码，限制1小时内每用户Id最多只能登录5次
+"""
+import redis
+import sys
+import time
+
+r = redis.StrictRedis(host='127.0.0.1', port=6379, db=1)
+try:
+    id = sys.argv[1]
+except:
+    print('input argument error')
+    sys.exit(0)
+# 将每次登陆的时间存入redis的名为login_item列表中，判断列表元素个数是否已达到5并且和第一次登录时间比较是否在一个小时以内。
+if r.llen('login_item') >= 5 and (time.time() - float(r.lindex('login_item', 4)) <= 3600):
+    print('you are forbidden logining')
+else:
+    print('you are allowed to login')
+    r.lpush('login_item', time.time())
+```
+

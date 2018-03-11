@@ -183,3 +183,8 @@ EMAIL_FROM = '天天生鲜<a7478317@163.com>'
 # SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 # # 设置session信息存储在CACHES配置项default对应的redis中
 # SESSION_CACHE_ALIAS = "default"
+
+
+
+# 指定登录页面对应的url地址
+LOGIN_URL = '/user/login'

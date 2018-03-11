@@ -7,6 +7,8 @@ from django.conf import settings
 from django.http import HttpResponse
 # django内置的认证系统函数
 from django.contrib.auth import authenticate, login, logout
+# django认证中的用户登入检测
+from django.contrib.auth.decorators import login_required
 
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from itsdangerous import SignatureExpired
@@ -217,73 +219,206 @@ class LogoutView(View):
         return redirect(reverse('user:login'))
 
 
-# /user/user_center_info
-class User_center_infoView(View):
-    """显示用户中心"""
+# login_required
+
+from django.contrib.auth.decorators import login_required
+from utils.mixin import LoginRequiredView, LoginRequiredMixin
+
+
+# /user/
+# class UserInfoView(View):
+# class UserInfoView(LoginRequiredView):
+class UserInfoView(LoginRequiredMixin, View):
+    """用户中心-信息页"""
 
     def get(self, request):
-        username = request.COOKIES['name']
-        response = render(request, 'user_center_info.html')
-        response.set_cookie('username', username)
-        return response
+        """显示"""
+        return render(request, 'user_center_info.html', {'page': 'user'})
+
+
+# /user/order
+# class UserOrderView(View):
+# class UserOrderView(LoginRequiredView):
+class UserOrderView(LoginRequiredMixin, View):
+    """用户中心-订单页"""
+
+    def get(self, request):
+        """显示"""
+        return render(request, 'user_center_order.html', {'page': 'order'})
+
+
+# /user/address
+# class AddressView(View):
+# class AddressView(LoginRequiredView):
+class AddressView(LoginRequiredMixin, View):
+    """用户中心-地址页"""
+    def get(self, request):
+        """显示"""
+        # 获取登录用户user
+        user = request.user
+        # try:
+        #     address = Address.objects.get(user=user, is_default=True)
+        # except Address.DoesNotExist:
+        #     address = None
+
+        default_address = Address.objects.get_default_address(user)
+
+        all_address = Address.objects.get_all_address(user)
+
+        # 组织模板上下文
+        context = {
+            'address': default_address,
+            'have_address': all_address,
+            'page': 'address'
+        }
+
+        # 使用模板
+        return render(request, 'user_center_site.html', context)
+
+    def post(self, request):
+        """地址添加"""
+        # 接收参数
+        receiver = request.POST.get('receiver')
+        addr = request.POST.get('addr')
+        zip_code = request.POST.get('zip_code')
+        phone = request.POST.get('phone')
+
+        # 参数校验
+        if not all([receiver, addr, phone]):
+            return render(request, 'user_center_site.html', {'errmsg': '数据不完整'})
+
+        # 校验手机号
+
+        # 业务处理：添加收货地址
+        # 如果用户已经有默认地址，新添加的地址作为非默认地址，否则作为默认地址
+        # 获取登录用户user
+        user = request.user
+        # try:
+        #     address = Address.objects.get(user=user, is_default=True)
+        # except Address.DoesNotExist:
+        #     address = None
+
+        address = Address.objects.get_default_address(user)
+
+        is_default = True
+        if address is not None:
+            is_default = False
+
+        # 添加收货地址
+        Address.objects.create(user=user,
+                               receiver=receiver,
+                               addr=addr,
+                               zip_code=zip_code,
+                               phone=phone,
+                               is_default=is_default)
+
+        # 返回应答，刷新地址页面
+        return redirect(reverse('user:address'))
+
+# /user/user_center_info
+# class User_center_infoView(View):
+#     """显示用户中心"""
+#
+#     def get(self, request):
+#         # username = request.COOKIES['name']
+#         response = render(request, 'user_center_info.html')
+#         # response.set_cookie('username', username)
+#         return response
+#
+#     # login_required
+#
+#     from django.contrib.auth.decorators import login_required
+#     from utils.mixin import LoginRequiredView, LoginRequiredMixin
+#
+#     # /user/
+#     # class UserInfoView(View):
+#     # class UserInfoView(LoginRequiredView):
+#     class UserInfoView(LoginRequiredMixin, View):
+#         """用户中心-信息页"""
+#
+#         def get(self, request):
+#             """显示"""
+#             return render(request, 'user_center_info.html', {'page': 'user'})
+#
+#     # /user/order
+#     # class UserOrderView(View):
+#     # class UserOrderView(LoginRequiredView):
+#     class UserOrderView(LoginRequiredMixin, View):
+#         """用户中心-订单页"""
+#
+#         def get(self, request):
+#             """显示"""
+#             return render(request, 'user_center_order.html', {'page': 'order'})
+#
+#     # /user/address
+#     # class AddressView(View):
+#     # class AddressView(LoginRequiredView):
+#     class AddressView(LoginRequiredMixin, View):
+#         """用户中心-地址页"""
+#
+#         def get(self, request):
+#             """显示"""
+#             return render(request, 'user_center_site.html', {'page': 'address'})
+
 
 
 # /user/user_center_site
-class User_center_siteView(View):
-    """显示收货地址"""
-
-    def get(self, request):
-        username = request.COOKIES['username']
-        user = User.objects.get(username=username)
-        try:
-            default_address = Address.objects.get(user=user.id, is_default=True)
-        except Address.DoesNotExist as e:
-            content = {'have_default': 1}
-            return render(request, 'user_center_site.html', content)
-        else:
-            content = {'have_default': 0, 'default_address': default_address}
-            return render(request, 'user_center_site.html', content)
-
-    def post(self, request):
-        """修改或新增地址"""
-        receiver = request.POST.get('receiver')  # 收件人
-        direction = request.POST.get('direction')  # 收件地址
-        mail_code = request.POST.get('mail_code')  # 邮编
-        phone_number = request.POST.get('phone_number')  # 电话号码
-        is_default = request.POST.get('is_default')  # 是否默认
-        username = request.COOKIES['username']
-        user = User.objects.get(username=username)
-
-        if not all([receiver, direction, mail_code, phone_number, is_default]):
-            # 后端也先校验一下数据完整性
-            return render(request, 'user_center_site.html', {'errmsg': '收货信息不完整,请重新填写'})
-
-        # 正确则写入数据库
-
-        try:
-            address = Address.objects.get(receiver=receiver, user=user, addr=direction, phone=phone_number)
-        except Address.DoesNotExist as e:
-            # 数据没有重复, 添加进地址表
-            if is_default == 0:
-                is_default = False
-                address = Address.objects.create(user=user, receiver=receiver, addr=direction, zip_code=mail_code, phone=phone_number, is_default=is_default)
-            else:
-                # 如果该地址设置为默认值，则需要将其他地址均设置为非默认
-                is_default = True
-                address = Address.objects.create(user=user, receiver=receiver, addr=direction, zip_code=mail_code,
-                                                 phone=phone_number, is_default=is_default)
-                other_address = Address.objects.exclude(user=user)
-                for other in other_address:
-                    other.is_default = False
-                    other.save()
-            default_address = Address.objects.get(user=user, is_default=True)
-            content = {'default_address': default_address}
-            return render(request, 'user_center_site.html', content)
-        else:
-            return render(request, 'user_center_site.html', {'errmsg': '收货信息重复'})
-
-
-
-
-
-
+# class User_center_siteView(View):
+#     """显示收货地址"""
+#
+#     def get(self, request):
+#         username = request.COOKIES['username']
+#         user = User.objects.get(username=username)
+#         try:
+#             default_address = Address.objects.get(user=user, is_default=True)
+#         except Address.DoesNotExist as e:
+#             content = {'have_default': 1}
+#             # return render(request, 'user_center_site.html', content)
+#         else:
+#             content = {'have_default': 0, 'default_address': default_address}
+#
+#             # return render(request, 'user_center_site.html', content)
+#         finally:
+#             have_address = Address.objects.all()
+#             content['have_address'] = have_address
+#             return render(request, 'user_center_site.html', content)
+#
+#     def post(self, request):
+#         """修改或新增地址"""
+#         receiver = request.POST.get('receiver')  # 收件人
+#         direction = request.POST.get('direction')  # 收件地址
+#         mail_code = request.POST.get('mail_code')  # 邮编
+#         phone_number = request.POST.get('phone_number')  # 电话号码
+#         is_default = request.POST.get('is_default')  # 是否默认
+#         username = request.COOKIES['username']
+#         user = User.objects.get(username=username)
+#
+#         if not all([receiver, direction, mail_code, phone_number, is_default]):
+#             # 后端也先校验一下数据完整性
+#             return render(request, 'user_center_site.html', {'errmsg': '收货信息不完整,请重新填写'})
+#
+#         # 正确则写入数据库
+#
+#         try:
+#             Address.objects.get(receiver=receiver, user=user, addr=direction, phone=phone_number)
+#         except Address.DoesNotExist as e:
+#             # 数据没有重复, 添加进地址表
+#             if is_default == 0:
+#                 is_default = False
+#                 Address.objects.create(user=user, receiver=receiver, addr=direction, zip_code=mail_code, phone=phone_number, is_default=is_default)
+#             else:
+#                 # 如果该地址设置为默认值，则需要将其他地址均设置为非默认
+#                 is_default = True
+#                 other_address = Address.objects.filter(user=user)
+#                 for other in other_address:
+#                     other.is_default = False
+#                     other.save()
+#                 Address.objects.create(user=user, receiver=receiver, addr=direction, zip_code=mail_code,
+#                                                  phone=phone_number, is_default=is_default)
+#             default_address = Address.objects.get(user=user, is_default=True)
+#             content = {'default_address': default_address}
+#             have_address = Address.objects.all()
+#             content['have_address'] = have_address
+#             return render(request, 'user_center_site.html', content)
+#         else:
+#             return render(request, 'user_center_site.html', {'errmsg': '收货信息重复'})

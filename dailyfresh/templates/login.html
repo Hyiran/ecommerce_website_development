@@ -1,13 +1,9 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+{% extends 'base.html' %}
 {% load static from staticfiles %}
-<head>
-	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
-	<title>天天生鲜-登录</title>
-	<link rel="stylesheet" type="text/css" href="{% static 'css/reset.css' %}">
-	<link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}">
-</head>
-<body>
+{% block title %}天天生鲜-登录{% endblock title %}
+{% block header_con %}{% endblock header_con %}
+{% block search_bar %}{% endblock search_bar %}
+{% block body %}
 	<div class="login_top clearfix">
 		<a href="index.html" class="login_logo"><img src="{% static 'images/logo02.png' %}"></a>
 	</div>
@@ -22,14 +18,15 @@
 					<a href="{% url 'user:register' %}">立即注册</a>
 				</div>
 				<div class="form_input">
-					<form action="{% url 'user:login' %}" method="post">
+                    {# 表单的action地址不设置时，表单提交时会向浏览器地址栏中的url地址发起提交 #}
+					<form method="post">
                         {% csrf_token %}
-						<input type="text" name="username" class="name_input" placeholder="请输入用户名" value="{{ username }}">
+						<input type="text" name="username" value="{{ username }}" class="name_input" placeholder="请输入用户名">
 						<div class="user_error">输入错误</div>
 						<input type="password" name="pwd" class="pass_input" placeholder="请输入密码">
 						<div class="pwd_error">输入错误</div>
 						<div class="more_input clearfix">
-							<input type="checkbox" name="remember">
+							<input type="checkbox" name="remember" {{ checked }}>
 							<label>记住用户名</label>
 							<a href="#">忘记密码</a>
 						</div>
@@ -39,20 +36,5 @@
 			</div>
 		</div>
 	</div>
-
-	<div class="footer no-mp">
-		<div class="foot_link">
-			<a href="#">关于我们</a>
-			<span>|</span>
-			<a href="#">联系我们</a>
-			<span>|</span>
-			<a href="#">招聘人才</a>
-			<span>|</span>
-			<a href="#">友情链接</a>		
-		</div>
-		<p>CopyRight © 2016 北京天天生鲜信息技术有限公司 All Rights Reserved</p>
-		<p>电话：010-****888    京ICP备*******8号</p>
-	</div>
-	
-</body>
-</html>
+    <p class="error_tip">{{ errmsg }}</p>>
+{% endblock body %}
