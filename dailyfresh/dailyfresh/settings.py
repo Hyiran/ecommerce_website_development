@@ -168,23 +168,34 @@ EMAIL_FROM = '天天生鲜<a7478317@163.com>'
 
 
 # 设置Django框架的缓存
-# CACHES = {
-#     "default": {
-#         "BACKEND": "django_redis.cache.RedisCache",
-#         # 设置django缓存的数据保存在redis数据库中
-#         "LOCATION": "redis://172.16.179.142:6379/5",
-#         "OPTIONS": {
-#             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-#         }
-#     }
-# }
-#
-# # Django的session存储设置
-# SESSION_ENGINE = "django.contrib.sessions.backends.cache"
-# # 设置session信息存储在CACHES配置项default对应的redis中
-# SESSION_CACHE_ALIAS = "default"
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        # 设置django缓存的数据保存在redis数据库中
+        "LOCATION": "redis://127.0.0.1:6379/5",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
+# Django的session存储设置
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+# 设置session信息存储在CACHES配置项default对应的redis中
+SESSION_CACHE_ALIAS = "default"
 
 
 
 # 指定登录页面对应的url地址
 LOGIN_URL = '/user/login'
+
+
+
+# 指定Django保存文件使用的文件存储类
+DEFAULT_FILE_STORAGE = 'utils.fdfs.storage.FDFSStorage'
+
+# 指定FDFS客户端配置文件的路径
+FDFS_CLIENT_CONF = os.path.join(BASE_DIR, 'utils/fdfs/client.conf')
+
+# 指定FDFS系统中Nginx的ip和port
+FDFS_NGINX_URL = 'http://172.16.110.128:8888/'

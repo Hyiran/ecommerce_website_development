@@ -13,6 +13,7 @@ from django.contrib.auth.decorators import login_required
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from itsdangerous import SignatureExpired
 from apps.user.models import User, Address
+from apps.goods.models import GoodsSKU
 from celery_tasks import tasks
 
 
@@ -223,6 +224,7 @@ class LogoutView(View):
 
 from django.contrib.auth.decorators import login_required
 from utils.mixin import LoginRequiredView, LoginRequiredMixin
+from django_redis import get_redis_connection
 
 
 # /user/
@@ -233,7 +235,43 @@ class UserInfoView(LoginRequiredMixin, View):
 
     def get(self, request):
         """显示"""
-        return render(request, 'user_center_info.html', {'page': 'user'})
+        # 获取登录用户
+        user = request.user
+
+        # 获取用户的默认收货地址
+        address = Address.objects.get_default_address(user)
+
+        # 获取用户的最近浏览商品的信息
+        # 若采用redis第三包交互时
+        # from redis import StrictRedis
+        # conn = StrictRedis(host='172.16.179.142', port=6379, db=5)
+
+        # 返回StrictRedis类的对象
+        # 若采用django-redis包时
+        conn = get_redis_connection('default')
+        # 拼接key
+        history_key = 'history_%d' % user.id
+
+        # lrange(key, start, stop) 返回是列表
+        # 获取用户最新浏览的5个商品的id
+        sku_ids = conn.lrange(history_key, 0, 4) # [1, 3, 5, 2]
+
+        skus = []
+        for sku_id in sku_ids:
+            # 根据商品的id查询商品的信息
+            sku = GoodsSKU.objects.get(id=sku_id)
+            # 追加到skus列表中
+            skus.append(sku)
+
+        # 组织模板上下文
+        context = {
+            'address': address,
+            'skus': skus,
+            'page': 'user'
+        }
+
+        # 使用模板
+        return render(request, 'user_center_info.html', context)
 
 
 # /user/order
