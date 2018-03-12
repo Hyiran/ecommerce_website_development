@@ -486,3 +486,104 @@ else:
     r.lpush('login_item', time.time())
 ```
 
+## 20180312
+
+- 1.FDFS文件存储系统。
+
+  ```
+  基本概念:
+    tracker-server: 跟踪服务器，负责调度，管理storage-server。
+    storage-server: 存储服务器，用来存储上传的文件，定时的向tracker-server发送自己的状态信息。
+
+  FDFS系统特点:
+    1）扩展存储容量方便，实现海量存储。
+    2）负载均衡。
+
+  提供FDFS中的文件:
+    在FDFS文件存储服务器上搭建Nginx服务器，负责提供FDFS系统中的文件。
+
+  相关环境启动:
+    1) 启动fdfs文件存储服务器
+      sudo service fdfs_trackerd start # 启动tracker-server
+      sudo service fdfs_storaged start # 启动storage-server
+
+    2) 停止fdfs文件存储服务器
+      sudo service fdfs_trackerd stop # 停止tracker-server
+      sudo service fdfs_storaged stop # 停止storage-server
+
+    3）启动、停止nginx服务器
+      sudo /usr/local/nginx/sbin/nginx # 启动nginx
+      sudo /usr/local/nginx/sbin/nginx -s stop # 停止nginx
+
+  ```
+
+- 2.上传图片和使用图片的流程。 ![生鲜项目上传图片和使用图片的流程](images/4_1.png)
+
+- 3.自定义文件存储类的过程。
+
+  ```
+  自定义文件存储类:
+  1）自定义文件存储类, 继承Storage。
+    from django.core.files.storage import Storage
+  2）在自定义文件存储类实现下面方法。
+    _save: django保存文件时会调用
+    exists: 判断文件是否存在
+    url: 返回可访问文件的url路径
+    class FDFSStorage(Storage):
+        """fast dfs文件存储类"""
+        def _save(self, name, content):
+            """保存文件"""
+            pass
+
+        def exists(self, name):
+            """判断文件是否存在"""
+            pass
+
+        def url(self, name):
+            """返回可访问文件的url路径"""
+            pass
+  3）settings配置文件中指定DEFAULT_FILE_STORAGE配置项。
+    DEFAULT_FILE_STORAGE='自定义文件存储类路径'
+
+  通过python和fdfs系统交互:
+  1）安装包。
+    pip install fdfs_client-py-master.zip
+  2）导入类并创建类的实例对象。
+    from fdfs_client.client import Fdfs_client
+    client = Fdfs_client('客户端配置文件路径')
+  3）调用client对象的实例方法即可和fdfs系统交互。
+
+  注意点：
+  1）导入Fdfs_client时如果提示缺少mutagen和requests模块，需要安装。
+    pip install mutagen
+    pip install requests
+
+  ```
+
+- 4.购物车记录存储g过程的分析。
+
+  ```
+  1）什么时候需要添加用户的购物车记录？
+  答: 当用户点击加入购物车按钮的时候，需要添加购物车记录。
+
+  2）什么时候需要获取用户的购物车记录？
+  答: 当用户访问购物车页面(购物车视图)，需要获取用户的购物车记录。
+
+  3）保存用户的购物车记录时需要保存哪些数据？
+  答: 商品id 添加数量。
+
+  4）数据保存在什么地方？
+  答: redis保存用户的购物车记录。
+
+  5）保存购物车记录时选择哪种数据类型？
+  答:
+    存储方案: 每个用户的购物车记录用一条数据来保存。
+    key格式: cart_用户id (用来区分每个用户)
+    value类型: 选择hash, 属性(商品id):值(添加数量)
+
+  假如id为1的用户购物车记录如下，则说明id为1的商品用户添加了5件，id为2的商品用户添加了3件。
+  cart_1: {'1':'5', '2':'3'}
+
+  获取用户购物车中商品的条目数:
+  hlen cart_1
+  ```

@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 
 from django.views.generic import View
+from django_redis import get_redis_connection
 from apps.goods.models import GoodsType, IndexGoodsBanner, IndexPromotionBanner, IndexTypeGoodsBanner
 
 
@@ -58,11 +59,26 @@ class IndexView(View):
             category.title_banner = title_banner
             category.image_banner = image_banner
 
+        # 判断用户用户是否已登录
+        cart_count = 0
+        if request.user.is_authenticated():
+            # 获取redis链接
+            conn = get_redis_connection('default')
+
+            print(request.user.id)
+            # 拼接key
+            cart_key = 'cart_%s' % request.user.id
+
+            # 获取用户购物车中商品的条目数
+            # hlen(key)-> 返回属性的数目
+            cart_count = conn.hlen(cart_key)
+
         # 组织模板上下文
         context = {
             'types': types,
             'index_banner': index_banner,
-            'promotion_banner': promotion_banner
+            'promotion_banner': promotion_banner,
+            'cart_count': cart_count,
         }
 
         # 使用模板
