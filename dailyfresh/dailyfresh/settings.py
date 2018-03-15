@@ -30,7 +30,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
 
 INSTALLED_APPS = (
@@ -42,15 +41,15 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     # 下面是一些自定义添加的第三方应用和项目应用
     'tinymce',  # django-tinymce 富文本编辑器
-    # 'haystack', # 全文检索的框架
+    'haystack',  # 全文检索的框架
     # 'djcelery', # 将耗时的程序放到celery中执行
     # 'celery_tasks',
 
     # 项目应用
-    'apps.cart', # 购物车  cart
+    'apps.cart',  # 购物车  cart
     'apps.goods',  # 商品
     'apps.order',  # 订单
-    'apps.user', # 用户
+    'apps.user',  # 用户
 )
 
 MIDDLEWARE_CLASSES = (
@@ -84,10 +83,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'dailyfresh.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 import pymysql
+
 pymysql.install_as_MySQLdb()
 DATABASES = {
     'default': {
@@ -102,7 +101,6 @@ DATABASES = {
         'PASSWORD': 'hitzzy',
     }
 }
-
 
 # 指定django认证系统使用的用户模型类
 AUTH_USER_MODEL = 'user.User'
@@ -120,7 +118,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 # 配置静态文件目录
@@ -137,29 +134,28 @@ TINYMCE_DEFAULT_CONFIG = {
 }
 
 # 搜索haystack配置
-# HAYSTACK_CONNECTIONS = {
-#     'default': {
-#         #使用whoosh引擎
-#         'ENGINE': 'haystack.backends.whoosh_cn_backend.WhooshEngine',
-#         #索引文件路径
-#         'PATH': os.path.join(BASE_DIR, 'whoosh_index'),
-#     }
-# }
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        # 使用whoosh引擎
+        'ENGINE': 'haystack.backends.whoosh_cn_backend.WhooshEngine',
+        # 索引文件路径
+        'PATH': os.path.join(BASE_DIR, 'whoosh_index'),
+    }
+}
 
-#当添加、修改、删除数据时，自动生成索引
+# 当添加、修改、删除数据时，自动生成索引
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 
 # 邮箱配置
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.163.com'
 EMAIL_PORT = 25
-#发送邮件的邮箱
+# 发送邮件的邮箱
 EMAIL_HOST_USER = 'a7478317@163.com'
-#在邮箱中设置的客户端授权密码
+# 在邮箱中设置的客户端授权密码
 EMAIL_HOST_PASSWORD = 'hitzzy123'
-#收件人看到的发件人
+# 收件人看到的发件人
 EMAIL_FROM = '天天生鲜<a7478317@163.com>'
-
 
 # 配置 djcelery
 # import djcelery
@@ -184,12 +180,8 @@ SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 # 设置session信息存储在CACHES配置项default对应的redis中
 SESSION_CACHE_ALIAS = "default"
 
-
-
 # 指定登录页面对应的url地址
 LOGIN_URL = '/user/login'
-
-
 
 # 指定Django保存文件使用的文件存储类
 DEFAULT_FILE_STORAGE = 'utils.fdfs.storage.FDFSStorage'

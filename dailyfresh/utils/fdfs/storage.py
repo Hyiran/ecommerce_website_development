@@ -41,8 +41,8 @@ class FDFSStorage(Storage):
         # 上传文件到FDFS文件存储系统
         # client = Fdfs_client('客户配置文件路径')
         # client = Fdfs_client(os.path.join(settings.BASE_DIR, 'utils/fdfs/client.conf'))
-        # client = Fdfs_client(self.client_conf)
-        client = Fdfs_client('/Users/scrappy_zhang/Documents/GitHub/ecommerce_website_development/dailyfresh/utils/fdfs/client.conf')
+        client = Fdfs_client(self.client_conf)
+
 
         # 获取上传文件内容
         file_content = content.read()
