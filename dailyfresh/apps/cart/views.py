@@ -8,6 +8,8 @@ from utils.mixin import LoginRequiredMixin
 from apps.goods.models import GoodsSKU
 
 
+from django.views.generic import detail
+
 # Create your views here.
 
 
