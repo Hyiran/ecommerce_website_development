@@ -170,8 +170,15 @@ class LoginView(View):
                 # 记住用户的登录状态
                 login(request, user)
 
+                # 获取用户登录之前访问的url地址，默认跳转到首页
+                next_url = request.GET.get('next', reverse('goods:index'))  # None
+                # print(next_url)
+
+                # 跳转到next_url
+                response = redirect(next_url)  # HttpResponseRedirect
+
                 # 跳转到首页
-                response = redirect(reverse('goods:index'))  # HttpResponseRedirect
+                # response = redirect(reverse('goods:index'))  # HttpResponseRedirect
                 # 将用户名赋值给index
                 # 方式1：直接在session里面记录该值，并传递给重定向
                 # request.session['is_login'] = username
@@ -187,7 +194,7 @@ class LoginView(View):
                 else:
                     # 删除cookie username
                     response.delete_cookie('username')
-                response.set_cookie('name', username)
+                # response.set_cookie('name', username)
                 # 跳转到首页
                 return response
             else:
@@ -294,6 +301,10 @@ class UserOrderView(LoginRequiredMixin, View):
 
         for order_info in order_infos:
             order_goods = OrderGoods.objects.filter(order=order_info)
+            for order_good in order_goods:
+                # 商品小计
+                amount = order_good.price * order_good.count
+                order_good.amount = amount
             order_info.order_goods = order_goods
             order_info.status = order_info.ORDER_STATUS_CHOICES[order_info.order_status-1][1]
 

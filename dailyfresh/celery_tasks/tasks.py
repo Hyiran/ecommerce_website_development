@@ -40,8 +40,6 @@ def send_register_active_email(to_email, username, token):
 
     # 发送激活邮件
     # send_mail(subject=邮件标题, message=邮件正文,from_email=发件人, recipient_list=收件人列表)
-    # import time
-    # time.sleep(5)
     send_mail(subject, message, sender, receiver, html_message=html_message)
 
 

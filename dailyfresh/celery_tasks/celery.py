@@ -1,4 +1,4 @@
-"""please input file function"""
+"""创建celery实例"""
 '''
 @Time    : 2018/3/9 下午4:30
 @Author  : scrappy_zhang
