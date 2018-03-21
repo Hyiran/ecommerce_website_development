@@ -299,55 +299,64 @@ class UserOrderView(LoginRequiredMixin, View):
         except OrderInfo.DoesNotExist :
             info_msg = 0
 
-        for order_info in order_infos:
-            order_goods = OrderGoods.objects.filter(order=order_info)
-            for order_good in order_goods:
-                # 商品小计
-                amount = order_good.price * order_good.count
-                order_good.amount = amount
-            order_info.order_goods = order_goods
-            order_info.status = order_info.ORDER_STATUS_CHOICES[order_info.order_status-1][1]
-
-        # 分页操作
-        from django.core.paginator import Paginator
-        paginator = Paginator(order_infos, 3)
-
-        # 处理页码
-        page = int(page)
-
-        if page > paginator.num_pages:
-            # 默认获取第1页的内容
-            page = 1
-
-        # 获取第page页内容, 返回Page类的实例对象
-        order_infos_page = paginator.page(page)
-
-        # 页码处理
-        # 如果分页之后页码超过5页，最多在页面上只显示5个页码：当前页前2页，当前页，当前页后2页
-        # 1) 分页页码小于5页，显示全部页码
-        # 2）当前页属于1-3页，显示1-5页
-        # 3) 当前页属于后3页，显示后5页
-        # 4) 其他请求，显示当前页前2页，当前页，当前页后2页
-        num_pages = paginator.num_pages
-        if num_pages < 5:
-            # 1-num_pages
-            pages = range(1, num_pages + 1)
-        elif page <= 3:
-            pages = range(1, 6)
-        elif num_pages - page <= 2:
-            # num_pages-4, num_pages
-            pages = range(num_pages - 4, num_pages + 1)
-        else:
-            # page-2, page+2
-            pages = range(page - 2, page + 3)
-
+        if len(order_infos) == 0:
+            info_msg = 0
         context = {
             'page': 'order',
-            'order_infos': order_infos,
             'info_msg': info_msg,
-            'pages' : pages,
-            'order_infos_page': order_infos_page
         }
+        if info_msg == 1:
+
+            for order_info in order_infos:
+                order_goods = OrderGoods.objects.filter(order=order_info)
+                for order_good in order_goods:
+                    # 商品小计
+                    amount = order_good.price * order_good.count
+                    order_good.amount = amount
+                order_info.order_goods = order_goods
+                order_info.status_title = OrderInfo.ORDER_STATUS[order_info.order_status]
+                # order_info.status = order_info.ORDER_STATUS_CHOICES[order_info.order_status-1][1]
+
+            # 分页操作
+            from django.core.paginator import Paginator
+            paginator = Paginator(order_infos, 3)
+
+            # 处理页码
+            page = int(page)
+
+            if page > paginator.num_pages:
+                # 默认获取第1页的内容
+                page = 1
+
+            # 获取第page页内容, 返回Page类的实例对象
+            order_infos_page = paginator.page(page)
+
+            # 页码处理
+            # 如果分页之后页码超过5页，最多在页面上只显示5个页码：当前页前2页，当前页，当前页后2页
+            # 1) 分页页码小于5页，显示全部页码
+            # 2）当前页属于1-3页，显示1-5页
+            # 3) 当前页属于后3页，显示后5页
+            # 4) 其他请求，显示当前页前2页，当前页，当前页后2页
+            num_pages = paginator.num_pages
+            if num_pages < 5:
+                # 1-num_pages
+                pages = range(1, num_pages + 1)
+            elif page <= 3:
+                pages = range(1, 6)
+            elif num_pages - page <= 2:
+                # num_pages-4, num_pages
+                pages = range(num_pages - 4, num_pages + 1)
+            else:
+                # page-2, page+2
+                pages = range(page - 2, page + 3)
+
+            context = {
+                'page': 'order',
+                'order_infos': order_infos,
+                'info_msg': info_msg,
+                'pages' : pages,
+                'order_infos_page': order_infos_page
+            }
         return render(request, 'user_center_order.html', context)
 
 
@@ -383,9 +392,9 @@ class AddressView(LoginRequiredMixin, View):
         """地址添加"""
         # 接收参数
         receiver = request.POST.get('receiver')
-        addr = request.POST.get('addr')
-        zip_code = request.POST.get('zip_code')
-        phone = request.POST.get('phone')
+        addr = request.POST.get('direction')
+        zip_code = request.POST.get('mail_code')
+        phone = request.POST.get('phone_number')
 
         # 参数校验
         if not all([receiver, addr, phone]):

@@ -191,3 +191,29 @@ FDFS_CLIENT_CONF = os.path.join(BASE_DIR, 'utils/fdfs/client.conf')
 
 # 指定FDFS系统中Nginx的ip和port
 FDFS_NGINX_URL = 'http://172.16.110.128:8888/'
+
+
+# 当添加、修改、删除数据时，自动生成索引
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
+
+
+# 支付宝沙箱APP_ID
+ALIPAY_APP_ID = '2016091000482369'
+
+# 支付宝网站回调url地址
+ALIPAY_APP_NOTIFY_URL = None
+
+# 支付宝同步return_url地址
+ALIPAY_APP_RETURN_URL = 'http://127.0.0.1:8000/order/check'
+
+# 网站私钥文件路径
+APP_PRIVATE_KEY_PATH = os.path.join(BASE_DIR, 'apps/order/app_private_key.pem')
+
+# 支付宝公钥文件路径
+ALIPAY_PUBLIC_KEY_PATH = os.path.join(BASE_DIR, 'apps/order/alipay_public_key.pem')
+
+# 支付宝支付的开发模式
+ALIPAY_DEBUG = True
+
+# 支付宝沙箱支付网关地址
+ALIPAY_GATEWAY_URL = 'https://openapi.alipaydev.com/gateway.do?'

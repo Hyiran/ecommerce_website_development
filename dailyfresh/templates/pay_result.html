@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+{% block body %}
+    <div>
+        <h1 style="font-size: 30px;">您的订单: {{ pay_result }}</h1>
+        <a  style="font-size: 20px;" href="{% url 'user:order' 1 %}">点击去订单页面</a>
+    </div>
+{% endblock %}
