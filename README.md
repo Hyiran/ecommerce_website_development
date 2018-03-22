@@ -25,6 +25,8 @@
 - session基于Redis存储
 - 支付宝接口
 
+## [详细代码说明](https://github.com/ScrappyZhang/python_web_Crawler_DA_ML_DL/tree/master/web%E5%85%A8%E6%A0%88%E5%BC%80%E5%8F%91/Django%E7%94%B5%E5%95%86%E7%BD%91%E7%AB%99%E5%BC%80%E5%8F%91%E5%AE%9E%E4%BE%8B?1521684991920)
+
 ## 运行环境：
 
 见requirements.txt:运行如下命令可安装
