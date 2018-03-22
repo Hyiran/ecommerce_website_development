@@ -3,14 +3,12 @@
 
 ## 运行方式：
 
-修改如下文件的名称：去掉.example
+修改如下文件的名称：去掉`.example`
 
-- 修改settings.example.py为settings.py并将相关参数设置为本地参数
-- 修改alipay_public_key_.pem与app_private_key.pem为自己的
-- 修改client.conf为自己的FastDFS系统客户端配置文件
-- 修改uwsgi.ini为自己的设置
-
-
+- 修改`settings.example.py`为`settings.py`并将相关参数设置为本地参数
+- 修改`alipay_public_key_.pem`与`app_private_key.pem`为自己的
+- 修改`client.conf`为自己的`FastDFS`系统客户端配置文件(需要自行配置Fast DFS)
+- 修改`uwsgi.ini`为自己的设置
 
 ## 重点内容有：
 
@@ -27,43 +25,49 @@
 - session基于Redis存储
 - 支付宝接口
 
+## 运行环境：
+
+见requirements.txt:运行如下命令可安装
+
+```
+pip install -r requirements.txt
+```
+
+amqp==2.2.2
+anyjson==0.3.3
+billiard==3.5.0.3
+celery==4.1.0
+certifi==2018.1.18
+chardet==3.0.4
+Django==1.8.2
+django-bootstrap3==9.1.0
+django-celery==3.2.2
+django-celery-results==1.0.1
+django-haystack==2.7.0
+django-redis==4.7.0
+django-tinymce==2.7.0
+fdfs-client-py==1.2.6
+idna==2.6
+itsdangerous==0.24
+jieba==0.39
+kombu==4.1.0
+mutagen==1.40.0
+Pillow==5.0.0
+pycryptodomex==3.5.1
+PyMySQL==0.8.0
+python-alipay-sdk==1.7.0
+pytz==2018.3
+redis==2.10.6
+reportlab==3.4.0
+requests==2.18.4
+urllib3==1.22
+uWSGI==2.0.17
+vine==1.1.4
+Whoosh==2.7.4
 
 
 
-
-
-
-
-
-- 用户历史浏览记录存储的分析过程——一般用户最近浏览的均为用户的感兴趣群体数据，有助于推荐更精准的广告或者产品。
-
-  ```
-  问题分析:
-  1）什么时候需要添加用户历史浏览的记录？
-  答:当用户点击某个商品，访问商品的详情页面(详情页视图)的时候，才要添加历史浏览记录。
-
-  2）什么时候需要获取用户历史浏览的记录？
-  答: 当用户访问用户中心-信息页(信息页视图)的时候，需要获取用户的历史浏览记录。
-
-  3）保存用户的历史浏览记录需要保存哪些数据？
-  答: 保存商品id，添加历史浏览记录时需要保持用户的浏览顺序。
-
-  4）数据需要保存在哪里？
-  答: 数据持久化保存: 文件 mysql数据库 redis数据库。对于频繁操作的数据，为了提高处理的效率，
-  建议放在redis数据库。
-
-  5）采用redis中哪种数据格式？key-value key是字符串类型，value分为5种类型。
-  存储方案1：所有用户的历史浏览记录用一条数据来保存。
-    key: history
-    值选择hash, 属性(user_用户id), 用hash的属性来区分每一个用户。
-    属性(user_用户id)的值来保存用户浏览的商品的id, 属性值保存成以逗号分隔的字符 '2,3,4'
-
-  存储方案2：每个用户的历史浏览记录用一条数据来保存。
-    key: history_用户id 用key来区分每一个用户
-    value选择list: [3, 1, 2]，最新浏览的商品的id添加到列表最左侧
-
-  存储方案1操作历史浏览记录时需要进行额外的字符串操作，存储方案2的效率更高。
-  ```
+## 代码中未有的常见问题：
 
 <font color=blue>一个常见的问题: mySQL里有2000w数据，redis中只存20w的数据，如何保证redis中的数据都是热点数据</font>：
 
