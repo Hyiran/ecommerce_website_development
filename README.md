@@ -1,7 +1,18 @@
 # ecommerce_website_development
 本项目基于Django1.8.2等来开发一个电商平台，可实现注册、登录、浏览、购买、支付等全部常用功能。
 
-重点内容有：
+## 运行方式：
+
+修改如下文件的名称：去掉.example
+
+- 修改settings.example.py为settings.py并将相关参数设置为本地参数
+- 修改alipay_public_key_.pem与app_private_key.pem为自己的
+- 修改client.conf为自己的FastDFS系统客户端配置文件
+- 修改uwsgi.ini为自己的设置
+
+
+
+## 重点内容有：
 
 - Redis实现购物车记录存储
 - Redis实现最近浏览记录存储

@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '+8zht82347%9l0itvy&kbe2f#crs1*_2#uhlj!3!aay_i+h7@m'
+SECRET_KEY = 'your django secret key， please use your key'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -94,11 +94,11 @@ DATABASES = {
         # 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         #  配置mysql
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'ttsx',
-        'HOST': 'localhost',
-        'PORT': '3306',
-        'USER': 'root',
-        'PASSWORD': 'hitzzy',
+        'NAME': 'mysql 数据库名称',
+        'HOST': 'mysql host',
+        'PORT': 'mysql port',
+        'USER': 'mysql username',
+        'PASSWORD': 'mysql password',
     }
 }
 
@@ -151,11 +151,11 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.163.com'
 EMAIL_PORT = 25
 # 发送邮件的邮箱
-EMAIL_HOST_USER = 'a7478317@163.com'
+EMAIL_HOST_USER = '要使用的发送163邮箱'
 # 在邮箱中设置的客户端授权密码
-EMAIL_HOST_PASSWORD = 'hitzzy123'
+EMAIL_HOST_PASSWORD = 'stmp授权码'
 # 收件人看到的发件人
-EMAIL_FROM = '天天生鲜<a7478317@163.com>'
+EMAIL_FROM = '收件人看到的发件人名称'
 
 # 配置 djcelery
 # import djcelery
@@ -198,7 +198,7 @@ HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 
 
 # 支付宝沙箱APP_ID
-ALIPAY_APP_ID = '2016091000482369'
+ALIPAY_APP_ID = '沙箱app id'
 
 # 支付宝网站回调url地址
 ALIPAY_APP_NOTIFY_URL = None
